@@ -1,3 +1,5 @@
+import * as yaml from "js-yaml"
+
 function getFileNameWithoutExtension(filename: string) {
     var pattern = /\.[A-Za-z]+$/;
     let ansMatch = pattern.exec(filename);
@@ -26,5 +28,22 @@ function getMarkDownTitle(data: string = "") {
   
     return data;
 }
+
+function loadYamlTitle(data: string = ""){
+    try{
+        const contents: any = yaml.load(data)
+        const titles = Object.keys(contents).sort()
+        const parsed = titles
+                .map(title => "Root." + title)
+                .map(title => title.replace(/[^.]+\./g, "#"))
+                .map(title => title.replace(/(#+)([^#]+)/g, "$1 $2"))
+                .join("\n")
+
+        console.log(parsed)
+        return parsed
+    }catch(e){
+        e
+    }
+}
   
-export { getFileNameWithoutExtension, debounce, getMarkDownTitle };
+export { getFileNameWithoutExtension, debounce, getMarkDownTitle, loadYamlTitle };

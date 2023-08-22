@@ -1,0 +1,14 @@
+HVAC:
+    type: branch
+
+HVAC.Heater:
+    type: branch
+
+HVAC.Heater.Temperature:
+    datatype: integer
+    min: 16
+    max: 28
+
+HVAC.Heater.Blower:
+    datatype: string
+    allowed: [front, rear]

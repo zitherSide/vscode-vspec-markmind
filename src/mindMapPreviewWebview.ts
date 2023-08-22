@@ -125,8 +125,11 @@ class MindMapPreview {
     updatePreview(fromFile = false) {
         this.fromFile = fromFile;
         
-        let data = this.editingEditor.document.getText();
-        if(this.fromFile) {data = utils.getMarkDownTitle(data);}
+        let rawdata = this.editingEditor.document.getText();
+        let data
+        if(this.fromFile) {data = utils.getMarkDownTitle(rawdata);}
+        // "# About this Extension\r\n## Name\r\n## Author\r\n## Project Communicate Languages\r"
+        data = utils.loadYamlTitle(rawdata)
         this.view.webview.postMessage({
             command: "renderMarkdown", data: data
         });
