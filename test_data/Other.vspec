@@ -1,0 +1,6 @@
+#include testdir/Additional.vspec
+
+Data:
+    datatype: integer
+Data2:
+    datatype: float

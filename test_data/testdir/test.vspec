@@ -13,5 +13,4 @@ HVAC.Heater.Blower:
     datatype: string
     allowed: [front, rear]
 
-#include Other.vspec HVAC
-#include Another.vspec
+#include ../Other.vspec HVAC

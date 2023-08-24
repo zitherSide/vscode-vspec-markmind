@@ -125,14 +125,30 @@ class MindMapPreview {
     updatePreview(fromFile = false) {
         this.fromFile = fromFile;
         
-        let rawdata = this.editingEditor.document.getText();
-        let data
-        if(this.fromFile) {data = utils.getMarkDownTitle(rawdata);}
-        // "# About this Extension\r\n## Name\r\n## Author\r\n## Project Communicate Languages\r"
-        data = utils.loadYamlTitle(rawdata)
-        this.view.webview.postMessage({
-            command: "renderMarkdown", data: data
-        });
+        let rawData = this.editingEditor.document.getText();
+
+        const documentUri = this.editingEditor.document.uri.fsPath
+        const dir = path.dirname(documentUri)
+
+        utils.expandIncludes(rawData, dir, 3).then(
+            str => {
+                let data
+                if(this.fromFile) {
+                    data = utils.loadYamlTitle(str)
+                }
+                this.view.webview.postMessage({
+                    command: "renderMarkdown", data: data
+                });
+            }
+        ).catch(e => 
+            console.log(e))
+        // let data
+        // if(this.fromFile) {data = 
+        //     data = utils.loadYamlTitle(rawdata)
+        // }
+        // this.view.webview.postMessage({
+        //     command: "renderMarkdown", data: data
+        // });
     }
 
     exportSvg() {
