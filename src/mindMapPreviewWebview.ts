@@ -124,13 +124,12 @@ class MindMapPreview {
 
     updatePreview(fromFile = false) {
         this.fromFile = fromFile;
-        
-        let rawData = this.editingEditor.document.getText();
-
+        const rawData = this.editingEditor.document.getText();
         const documentUri = this.editingEditor.document.uri.fsPath
         const dir = path.dirname(documentUri)
 
-        utils.expandIncludes(rawData, dir, 3).then(
+        const depthLimit: number = vscode.workspace.getConfiguration().get("vscode-vspec-tree-preview.include-depth") || 10
+        utils.expandIncludes(rawData, dir, depthLimit).then(
             str => {
                 let data
                 if(this.fromFile) {
@@ -140,15 +139,7 @@ class MindMapPreview {
                     command: "renderMarkdown", data: data
                 });
             }
-        ).catch(e => 
-            console.log(e))
-        // let data
-        // if(this.fromFile) {data = 
-        //     data = utils.loadYamlTitle(rawdata)
-        // }
-        // this.view.webview.postMessage({
-        //     command: "renderMarkdown", data: data
-        // });
+        ).catch(e => console.log(e))
     }
 
     exportSvg() {

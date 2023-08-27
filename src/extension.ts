@@ -5,7 +5,7 @@ import { writeToClipBoard } from "./writeToClipBoard";
 export function activate(context: vscode.ExtensionContext) {
     let mindMapPreview: MindMapPreview;
     context.subscriptions.push(
-        vscode.commands.registerCommand("mdmmp.showMindMap", () => {
+        vscode.commands.registerCommand("vspctr.showVspecTree", () => {
             if ((mindMapPreview === undefined) || mindMapPreview.isDisposed) {
                 mindMapPreview = new MindMapPreview(context);
             }
@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand("mdmmp.exportSvg", () => {
+        vscode.commands.registerCommand("vspctr.exportSvg", () => {
             if ((mindMapPreview === undefined) || mindMapPreview.isDisposed) {
                 vscode.window.showWarningMessage(
                     "Sorry, you need open the preview tab first.");
@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand("mdmmp.showMindMapFromFile", () => {
+        vscode.commands.registerCommand("vspctr.showVspecTreeFromFile", () => {
             if (mindMapPreview === undefined || mindMapPreview.isDisposed) {
                 mindMapPreview = new MindMapPreview(context);
             }
@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand("mdmmp.copyTitle", writeToClipBoard)
+        vscode.commands.registerCommand("vspctr.copyTitle", writeToClipBoard)
     );
 }
 

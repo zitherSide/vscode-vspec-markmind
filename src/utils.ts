@@ -54,7 +54,9 @@ async function expandIncludes(data: string = "", currentDir: string = "", depth:
     const originData = data
     const originRoot = root
     let include = regex.exec(data)
-    
+    const registeredPath: string = vscode.workspace.getConfiguration().get("vscode-vspec-tree-preview.include-path") || "spec"
+    const newDepth = depth
+
     while(include?.groups && vscode.workspace.workspaceFolders){
         const file = vscode.Uri.joinPath(vscode.Uri.file(currentDir), include.groups.file)
         const newRoot = (include.groups.root ? include.groups.root + "." : "")
@@ -64,12 +66,14 @@ async function expandIncludes(data: string = "", currentDir: string = "", depth:
         try{
             document  = await vscode.workspace.openTextDocument(file)
         }catch(e){
-            const includePath = vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "spec", include.groups.file)
+            const includePath = vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, registeredPath, include.groups.file)
             document = await vscode.workspace.openTextDocument(includePath)
         }
         let text = document.getText();
-        if(depth > 0){
-            text = await expandIncludes(text, path.dirname(file.fsPath), depth - 1, newRoot)
+        if(newDepth > 0){
+            text = await expandIncludes(text, path.dirname(file.fsPath), newDepth - 1, newRoot)
+        }else{
+            console.log("end")
         }
         const addRootPtn = /^([\w.]+:\s*)$/gm
         text = text.replace(addRootPtn, (newRoot + '$1'))
