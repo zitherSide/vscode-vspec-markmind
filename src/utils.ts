@@ -38,9 +38,17 @@ function loadYamlTitle(data: string = "", root: string = "Root."){
         const contents: any = yaml.load(data)
         const titles = Object.keys(contents).sort()
         const parsed = titles
-            .map(title => root + title)
-            .map(title => title.replace(/[^.]+\./g, "#"))
-            .map(title => title.replace(/(#+)([^#]+)/g, "$1 $2"))
+            .flatMap(title => {
+                if(contents[title].datatype && contents[title].unit){
+                    return title + "(" + contents[title].unit + ")"
+                }else{
+                    return title
+                }
+            })
+            //.flatMap(title => createFakeChildren(title, "allowed", "[enum]", contents))
+            .flatMap(title => createFakeChildren(title, "instances", "[inst]", contents))
+            .flatMap(title => title.replace(/[^.]+\./g, "  "))
+            .flatMap(title => title.replace(/(\s*)([^\s]+$)/g, "$1- $2"))
             .join("\n")
 
         return parsed
@@ -49,8 +57,23 @@ function loadYamlTitle(data: string = "", root: string = "Root."){
     }
 }
 
+const createFakeChildren = (baseKey: string, childKey: string, fakeChildKey: string, data: any) => {
+    if(data[baseKey] && data[baseKey][childKey]){
+        if(data[baseKey][childKey].map){
+            const inst = data[baseKey][childKey].map((elem: string) => baseKey + '.' + fakeChildKey +'.' + elem)
+            return [baseKey, baseKey + '.' + fakeChildKey].concat(inst)
+        }else{
+            return [baseKey, baseKey + '.' + fakeChildKey + '.',  baseKey + '.' + fakeChildKey + '.' + data[baseKey][childKey]]
+        }
+    }else{
+        return baseKey
+    }
+}
+
 async function expandIncludes(data: string = "", currentDir: string = "", depth: number, root: string = ""){
-    const regex = /^\s*#include\s+(?<file>[\w/]+\.vspec)(?:\s+(?<root>[\w.]+))?\s*$/gm
+    console.log(data)
+
+    const regex = /^(?<whole>\s*#include\s+(?<file>[\w/]+\.vspec)(?:\s+(?<root>[\w.]+))?\s*)$/gm
     const originData = data
     const originRoot = root
     let include = regex.exec(data)
@@ -60,7 +83,7 @@ async function expandIncludes(data: string = "", currentDir: string = "", depth:
     while(include?.groups && vscode.workspace.workspaceFolders){
         const file = vscode.Uri.joinPath(vscode.Uri.file(currentDir), include.groups.file)
         const newRoot = (include.groups.root ? include.groups.root + "." : "")
-        const replacer = include[0]
+        const replacer = include.groups.whole.replace(/[\n\r]/g, "")
         
         let document
         try{
@@ -77,7 +100,7 @@ async function expandIncludes(data: string = "", currentDir: string = "", depth:
         }
         const addRootPtn = /^([\w.]+:\s*)$/gm
         text = text.replace(addRootPtn, (newRoot + '$1'))
-        const data2 = data.replace(replacer, text + EOL)
+        const data2 = data.replace(replacer, text)
         data = data2
         include = regex.exec(originData)
     }
